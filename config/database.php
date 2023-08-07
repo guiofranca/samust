@@ -43,6 +43,12 @@ return [
             'foreign_key_constraints' => env('DB_FOREIGN_KEYS', true),
         ],
 
+        'soh_pra_calculinho' => [
+            'driver'    => 'sqlite',
+            'database'  => ':memory:',
+            'prefix'    => ''
+        ],
+
         'mysql' => [
             'driver' => 'mysql',
             'url' => env('DATABASE_URL'),

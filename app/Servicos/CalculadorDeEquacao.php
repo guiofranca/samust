@@ -16,7 +16,7 @@ class CalculadorDeEquacao
     public function calcular(Equacao $equacao, $inicio, $fim)
     {
         try {
-            $transactionNaoExiste = DB::connection(DB::getDefaultConnection())->transactionLevel() == 0;
+            $transactionNaoExiste = DB::connection('soh_pra_calculinho')->transactionLevel() == 0;
             if ($transactionNaoExiste) {
                 DB::beginTransaction();
             }
@@ -27,7 +27,7 @@ class CalculadorDeEquacao
             $this->criar_tabela_temporaria($equacao);
             $this->popular_tabela_temporaria($equacao, $datas);
 
-            $resultado = DB::table($this->nome_tabela($equacao))->selectRaw("instante, {$equacao->formula} valor")->get();
+            $resultado = DB::connection('soh_pra_calculinho')->table($this->nome_tabela($equacao))->selectRaw("instante, {$equacao->formula} valor")->get();
 
         } catch (\Throwable $th) {
             throw $th;
@@ -45,7 +45,7 @@ class CalculadorDeEquacao
         $equacao->equacionaveis->each(function (Equacionavel $eq) use ($datas, $equacao) {
             $dados = $this->buscar_dados($eq, $datas);
             $dados = $dados->map(fn ($v) => ['instante' => $v->instante, $eq->nome => $v->valor])->toArray();
-            DB::table($this->nome_tabela($equacao))
+            DB::connection('soh_pra_calculinho')->table($this->nome_tabela($equacao))
                 ->upsert($dados, ['instante'], [$eq->nome]);
         });
     }
@@ -82,7 +82,7 @@ class CalculadorDeEquacao
 
     private function criar_tabela_temporaria(Equacao $equacao)
     {
-        Schema::create($this->nome_tabela($equacao), function (Blueprint $table) use ($equacao) {
+        Schema::connection('soh_pra_calculinho')->create($this->nome_tabela($equacao), function (Blueprint $table) use ($equacao) {
             $table->temporary();
             $table->timestamp('instante')->unique();
             foreach ($equacao->equacionaveis->pluck('nome') as $coluna) {
@@ -94,7 +94,7 @@ class CalculadorDeEquacao
     private function destruir_tabela_temporaria(Equacao $equacao)
     {
         $nome = $this->nome_tabela($equacao);
-        Schema::dropIfExists($nome);
+        Schema::connection('soh_pra_calculinho')->dropIfExists($nome);
     }
 
     private function nome_tabela(Equacao $equacao): string

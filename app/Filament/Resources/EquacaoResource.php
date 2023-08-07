@@ -32,12 +32,14 @@ class EquacaoResource extends Resource
                 Forms\Components\TextInput::make('nome')
                     ->required()
                     ->maxLength(255),
-                Forms\Components\TextInput::make('formula')
+                Forms\Components\Textarea::make('formula')
                     ->required()
                     ->maxLength(255),
                 Forms\Components\Repeater::make('equacionaveis')
                     ->label('Variáveis')
                     ->columnSpanFull()
+                    ->collapsible()
+                    ->minItems(1)
                     ->relationship('equacionaveis')
                     ->schema([
                         Forms\Components\TextInput::make('nome')
@@ -45,10 +47,12 @@ class EquacaoResource extends Resource
                             ->maxLength(255),
                         Forms\Components\Select::make('grandeza')
                             ->options(['Energia' => 'Energia'])
-                            //->hidden(fn ($get) => $get('nome') === Equacao::class)
+                            ->hidden(fn ($get) => $get('nome') == '123' || empty($get('equacionavel_type')) || $get('equacionavel_type') === Equacao::class)
+                            ->live()
                             ->requiredIf('equacionavel_type', Ponto::class),
                         Forms\Components\MorphToSelect::make('variavel')
                             ->label('Variável')
+                            ->required()
                             ->types([
                                 MorphToSelect\Type::make(Ponto::class)
                                     ->titleAttribute('nome'),

@@ -13,6 +13,7 @@ class GrafikinWidget extends ChartWidget
     protected static string $resource = EquacaoResource::class;
     public ?Equacao $record = null;
     protected int | string | array $columnSpan = 2;
+    protected static ?string $pollingInterval = null;
 
     protected function getData(): array
     {
