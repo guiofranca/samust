@@ -7,6 +7,7 @@ use App\Models\Equacionavel;
 use App\Models\Ponto;
 use Carbon\Carbon;
 use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Facades\Validator;
@@ -56,8 +57,9 @@ class CalculadorDeEquacao
 
     private function buscar_dados(Equacionavel $equacionavel, $datas)
     {
+        $dados = [];
         if ($equacionavel->equacionavel instanceof Ponto) {
-            return $equacionavel->equacionavel->medicoes()
+            $dados = $equacionavel->equacionavel->medicoes()
                 ->where('grandeza', $equacionavel->grandeza)
                 ->whereBetween('instante', [$datas[0], $datas[1]])
                 ->get();
@@ -65,8 +67,12 @@ class CalculadorDeEquacao
 
         if ($equacionavel->equacionavel instanceof Equacao) {
             if ($equacionavel->equacionavel->id == $equacionavel->equacao_id) throw new \Exception("Recursão infinita em {$equacionavel->nome}");
-            return $this->calcular($equacionavel->equacionavel, $datas[0], $datas[1]);
+            $dados = $this->calcular($equacionavel->equacionavel, $datas[0], $datas[1]);
         }
+
+        Cache::put("equacao_{$equacionavel->equacao_id}_{$equacionavel->equacionavel->id}", $dados, 60);
+
+        return $dados;
     }
 
     private function validar_datas($inicio, $fim)
