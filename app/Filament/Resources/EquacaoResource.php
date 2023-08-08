@@ -47,7 +47,7 @@ class EquacaoResource extends Resource
                             ->maxLength(255),
                         Forms\Components\Select::make('grandeza')
                             ->options(['Energia' => 'Energia'])
-                            ->hidden(fn ($get) => $get('nome') == '123' || empty($get('equacionavel_type')) || $get('equacionavel_type') === Equacao::class)
+                            ->hidden(fn ($get) => empty($get('equacionavel_type')) || $get('equacionavel_type') === Equacao::class)
                             ->live()
                             ->requiredIf('equacionavel_type', Ponto::class),
                         Forms\Components\MorphToSelect::make('variavel')

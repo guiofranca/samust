@@ -6,6 +6,7 @@ use App\Models\Equacao;
 use App\Servicos\CalculadorDeEquacao;
 use Carbon\Carbon;
 use Filament\Widgets\ChartWidget;
+use Illuminate\Support\Benchmark;
 
 class GrafikinWidget extends ChartWidget
 {
@@ -17,7 +18,12 @@ class GrafikinWidget extends ChartWidget
 
     protected function getData(): array
     {
-        $calculador = new CalculadorDeEquacao($this->record);
+        // Benchmark::dd([
+        //     fn() => (new CalculadorDeEquacao('mysql'))->calcular($this->record, '2023-08-01', '2023-08-30'),
+        //     fn() => (new CalculadorDeEquacao('soh_pra_calculinho'))->calcular($this->record, '2023-08-01', '2023-08-30'),
+        // ], 1);
+
+        $calculador = new CalculadorDeEquacao();
         $dados = $calculador->calcular($this->record, '2023-08-01', '2023-08-30');
         return [
             'datasets' => [
